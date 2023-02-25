@@ -11,7 +11,11 @@ import org.json.JSONObject
 
 class DashboardFragment : Fragment() {
 
-    lateinit var fab: FloatingActionButton
+    lateinit var mainFAB: FloatingActionButton
+    lateinit var startFAB: FloatingActionButton
+    lateinit var joinFAB: FloatingActionButton
+    var fabsVisible = false
+    var startedConvoy = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,30 +32,43 @@ class DashboardFragment : Fragment() {
 
         val layout =  inflater.inflate(R.layout.fragment_dashboard, container, false)
 
-        fab = layout.findViewById(R.id.startFloatingActionButton)
+        mainFAB = layout.findViewById(R.id.mainFAB)
+        startFAB = layout.findViewById(R.id.startFAB)
+        joinFAB = layout.findViewById(R.id.joinFAB)
 
         // Query the server for the current Convoy ID (if available)
         // and use it to close the convoy
-        fab.setOnLongClickListener {
+        mainFAB.setOnLongClickListener {
+            ViewModelProvider(requireActivity()).get(ConvoyViewModel::class.java).setConvoyId("")
+            if (Helper.user.getSessionKey(requireContext()).isNullOrEmpty()) return@setOnLongClickListener true
             Helper.api.queryStatus(requireContext(),
             Helper.user.get(requireContext()),
             Helper.user.getSessionKey(requireContext())!!,
             object: Helper.api.Response {
                 override fun processResponse(response: JSONObject) {
-                    Helper.api.closeConvoy(requireContext(),
-                        Helper.user.get(requireContext()),
-                        Helper.user.getSessionKey(requireContext())!!,
-                        response.getString("convoy_id"),
-                        null)
+                    if (Helper.api.isSuccess(response)) {
+                        Helper.api.endConvoy(requireContext(),
+                            Helper.user.get(requireContext()),
+                            Helper.user.getSessionKey(requireContext())!!,
+                            response.getString("convoy_id"),
+                            null)
+                    }
                 }
             })
             true
         }
 
-        layout.findViewById<View>(R.id.startFloatingActionButton)
-            .setOnClickListener{
-                (activity as DashboardInterface).createConvoy()
-            }
+        mainFAB.setOnClickListener{ toggleFABs() }
+        startFAB.setOnClickListener {
+            toggleFABs()
+            (activity as DashboardInterface).createConvoy()
+            startedConvoy = true
+        }
+        joinFAB.setOnClickListener {
+            toggleFABs()
+            (activity as DashboardInterface).joinConvoy()
+            startedConvoy = false
+        }
 
         return layout
     }
@@ -65,13 +82,16 @@ class DashboardFragment : Fragment() {
         // currently in a convoy
         ViewModelProvider(requireActivity()).get(ConvoyViewModel::class.java).getConvoyId().observe(requireActivity()) {
             if (it.isNullOrEmpty()) {
-                fab.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#03DAC5"))
-                fab.setImageResource(android.R.drawable.ic_input_add)
-                fab.setOnClickListener {(activity as DashboardInterface).createConvoy()}
+                mainFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#03DAC5"))
+                mainFAB.setImageResource(R.drawable.add_24)
+                mainFAB.setOnClickListener { toggleFABs() }
             } else {
-                fab.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#e91e63"))
-                fab.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
-                fab.setOnClickListener {(activity as DashboardInterface).endConvoy()}
+                mainFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#e91e63"))
+                mainFAB.setImageResource(R.drawable.close_24)
+                mainFAB.setOnClickListener {
+                    if (startedConvoy) (activity as DashboardInterface).endConvoy()
+                    else (activity as DashboardInterface).leaveConvoy()
+                }
             }
 
         }
@@ -93,9 +113,26 @@ class DashboardFragment : Fragment() {
         return false
     }
 
+    private fun toggleFABs() {
+        if (fabsVisible) {
+            startFAB.visibility = View.GONE
+            joinFAB.visibility = View.GONE
+            fabsVisible = false
+            mainFAB.setImageResource(R.drawable.add_24)
+        }
+        else {
+            startFAB.visibility = View.VISIBLE
+            joinFAB.visibility = View.VISIBLE
+            fabsVisible = true
+            mainFAB.setImageResource(R.drawable.close_24)
+        }
+    }
+
     interface DashboardInterface {
         fun createConvoy()
         fun endConvoy()
+        fun joinConvoy()
+        fun leaveConvoy()
         fun logout()
     }
 

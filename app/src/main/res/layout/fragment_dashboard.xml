@@ -8,23 +8,52 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView2"
-        android:name="edu.temple.convoy.MapsFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:name="edu.temple.convoy.MapsFragment"
+        tools:layout="@layout/fragment_login" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/startFloatingActionButton"
-        android:layout_width="389dp"
+        android:id="@+id/mainFAB"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:clickable="true"
-        android:src="@android:drawable/ic_input_add"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/add_24"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="@string/app_name" />
+        tools:visibility="visible" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/startFAB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:src="@drawable/location_share_24"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/mainFAB"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/joinFAB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:src="@drawable/compass_24"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/startFAB"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>
