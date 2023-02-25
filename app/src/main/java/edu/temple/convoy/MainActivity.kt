@@ -18,6 +18,9 @@ import androidx.navigation.Navigation
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -244,7 +247,9 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface, 
             convoyViewModel.postConvoyId("")
             Helper.user.clearConvoyId(this)
             stopLocationService()
-            Toast.makeText(this, "Convoy Ended", Toast.LENGTH_SHORT).show()
+            CoroutineScope(Dispatchers.Main).launch {
+                Toast.makeText(this@MainActivity, "Convoy Ended", Toast.LENGTH_SHORT).show()
+            }
         }
         if (action == "UPDATE") {
             convoyViewModel.postConvoyUsers(message.getJSONArray("data"))

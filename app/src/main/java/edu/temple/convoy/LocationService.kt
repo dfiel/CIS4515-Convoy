@@ -11,19 +11,20 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Binder
-import android.os.Handler
-import android.os.IBinder
-import android.os.Message
+import android.os.*
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 
 class LocationService : Service() {
 
     var locationManager: LocationManager? = null
     var locationListener: LocationListener? = null
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     var notification: Notification? = null
     var handler: Handler? = null
 
@@ -40,6 +41,22 @@ class LocationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(p0: LocationResult) {
+                Log.d("LocationService", "Location update received")
+                val location = p0.locations.first()
+                if (handler != null) {
+                    val msg: Message = Message.obtain()
+                    msg.obj = LatLng(location.latitude, location.longitude)
+                    handler!!.sendMessage(msg)
+                }
+            }
+        }
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+            .setMinUpdateDistanceMeters(10f)
+            .build()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Fetch location manager and define location listener to report
         // user location updates to connected client
@@ -76,10 +93,11 @@ class LocationService : Service() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             startForeground(1, notification);
             Log.d("Location Service", "Started")
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
 
-            locationListener?.apply {
-                locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0f, this)
-            }
+//            locationListener?.apply {
+//                locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0f, this)
+//            }
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -92,5 +110,8 @@ class LocationService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         locationManager?.removeUpdates(locationListener!!)
+        if (this::fusedLocationClient.isInitialized && this::locationCallback.isInitialized) {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+        }
     }
 }

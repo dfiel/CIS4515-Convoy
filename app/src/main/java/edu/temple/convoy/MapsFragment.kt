@@ -48,16 +48,19 @@ class MapsFragment : Fragment() {
 
         // Update location on map whenever ViewModel is updated
         convoyViewModel.getLocation().observe(requireActivity()) {
-            if (myMarker == null) myMarker = map.addMarker(
-                MarkerOptions().position(it)
-            ) else myMarker?.position = it
+            if (this::map.isInitialized) {
+                if (myMarker == null) myMarker = map.addMarker(
+                    MarkerOptions().position(it)
+                ) else myMarker?.position = it
+            }
             if (convoyViewModel.getConvoyId().value.isNullOrEmpty()) map.animateCamera(CameraUpdateFactory.newLatLngZoom(it, 17f))
         }
 
         convoyViewModel.getConvoyId().observe(requireActivity()) {id ->
             if (id.isNullOrEmpty()) {
-                map.clear()
+                convoyUsers.values.forEach { it?.remove() }
                 convoyUsers.clear()
+                myMarker?.let { map.animateCamera(CameraUpdateFactory.newLatLngZoom(it.position, 17f)) }
             }
         }
 
