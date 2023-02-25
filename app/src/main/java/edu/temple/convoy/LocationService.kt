@@ -78,7 +78,7 @@ class LocationService : Service() {
             Log.d("Location Service", "Started")
 
             locationListener?.apply {
-                locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5f, this)
+                locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0f, this)
             }
         }
         return super.onStartCommand(intent, flags, startId)

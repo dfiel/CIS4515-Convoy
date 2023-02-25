@@ -148,6 +148,7 @@ class Helper {
         private val KEY_LASTNAME = "lastname"
         private val KEY_CONVOY_ID = "convoy_id"
         private val KEY_TOKEN_REGISTERED = "token_registered"
+        private val KEY_STARTED_CONVOY = "started_convoy"
 
         fun saveSessionData(context: Context, sessionKey: String) {
             getSP(context).edit()
@@ -159,6 +160,20 @@ class Helper {
             getSP(context).edit()
                 .putString(KEY_CONVOY_ID, groupId)
                 .apply()
+        }
+
+        fun saveStartedConvoy(context: Context, state: Boolean) {
+            getSP(context).edit()
+                .putBoolean(KEY_STARTED_CONVOY, state)
+                .apply()
+        }
+
+        fun getStartedConvoy(context: Context): Boolean {
+            return getSP(context).getBoolean(KEY_STARTED_CONVOY, false)
+        }
+
+        fun clearStartedConvoy(context: Context) {
+            return getSP(context).edit().remove(KEY_STARTED_CONVOY).apply()
         }
 
         fun getConvoyId(context: Context): String? {

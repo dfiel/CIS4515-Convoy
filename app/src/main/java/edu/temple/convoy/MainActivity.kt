@@ -244,6 +244,7 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface, 
             convoyViewModel.postConvoyId("")
             Helper.user.clearConvoyId(this)
             stopLocationService()
+            Toast.makeText(this, "Convoy Ended", Toast.LENGTH_SHORT).show()
         }
         if (action == "UPDATE") {
             convoyViewModel.postConvoyUsers(message.getJSONArray("data"))

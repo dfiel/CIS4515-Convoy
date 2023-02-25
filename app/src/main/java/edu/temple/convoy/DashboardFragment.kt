@@ -12,13 +12,16 @@ import org.json.JSONObject
 
 class DashboardFragment : Fragment() {
 
+    val convoyViewModel : ConvoyViewModel by lazy {
+        ViewModelProvider(requireActivity()).get(ConvoyViewModel::class.java)
+    }
+
     lateinit var mainFAB: FloatingActionButton
     lateinit var startFAB: FloatingActionButton
     lateinit var joinFAB: FloatingActionButton
     lateinit var txtStart: TextView
     lateinit var txtJoin: TextView
     var fabsVisible = false
-    var startedConvoy = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +47,8 @@ class DashboardFragment : Fragment() {
         // Query the server for the current Convoy ID (if available)
         // and use it to close the convoy
         mainFAB.setOnLongClickListener {
-            ViewModelProvider(requireActivity()).get(ConvoyViewModel::class.java).setConvoyId("")
+            convoyViewModel.setConvoyId("")
+            Helper.user.clearConvoyId(requireContext())
             if (Helper.user.getSessionKey(requireContext()).isNullOrEmpty()) return@setOnLongClickListener true
             Helper.api.queryStatus(requireContext(),
             Helper.user.get(requireContext()),
@@ -67,12 +71,12 @@ class DashboardFragment : Fragment() {
         startFAB.setOnClickListener {
             toggleFABs()
             (activity as DashboardInterface).createConvoy()
-            startedConvoy = true
+            Helper.user.saveStartedConvoy(requireContext(), true)
         }
         joinFAB.setOnClickListener {
             toggleFABs()
             (activity as DashboardInterface).joinConvoy()
-            startedConvoy = false
+            Helper.user.saveStartedConvoy(requireContext(), false)
         }
 
         return layout
@@ -85,7 +89,7 @@ class DashboardFragment : Fragment() {
         // Use ViewModel to determine if we're in an active Convoy
         // Change FloatingActionButton behavior depending on if we're
         // currently in a convoy
-        ViewModelProvider(requireActivity()).get(ConvoyViewModel::class.java).getConvoyId().observe(requireActivity()) {
+        convoyViewModel.getConvoyId().observe(requireActivity()) {
             if (it.isNullOrEmpty()) {
                 mainFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#03DAC5"))
                 mainFAB.setImageResource(R.drawable.add_24)
@@ -94,7 +98,7 @@ class DashboardFragment : Fragment() {
                 mainFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#e91e63"))
                 mainFAB.setImageResource(R.drawable.close_24)
                 mainFAB.setOnClickListener {
-                    if (startedConvoy) (activity as DashboardInterface).endConvoy()
+                    if (Helper.user.getStartedConvoy(requireContext())) (activity as DashboardInterface).endConvoy()
                     else (activity as DashboardInterface).leaveConvoy()
                 }
             }

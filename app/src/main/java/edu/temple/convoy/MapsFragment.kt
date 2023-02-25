@@ -1,6 +1,7 @@
 package edu.temple.convoy
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +29,7 @@ class MapsFragment : Fragment() {
     }
 
     val convoyViewModel : ConvoyViewModel by lazy {
-        ViewModelProvider(this).get(ConvoyViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(ConvoyViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -47,16 +48,24 @@ class MapsFragment : Fragment() {
 
         // Update location on map whenever ViewModel is updated
         convoyViewModel.getLocation().observe(requireActivity()) {
-                if (myMarker == null) myMarker = map.addMarker(
-                    MarkerOptions().position(it)
-                ) else myMarker?.position = it
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(it, 17f))
+            if (myMarker == null) myMarker = map.addMarker(
+                MarkerOptions().position(it)
+            ) else myMarker?.position = it
+            if (convoyViewModel.getConvoyId().value.isNullOrEmpty()) map.animateCamera(CameraUpdateFactory.newLatLngZoom(it, 17f))
+        }
+
+        convoyViewModel.getConvoyId().observe(requireActivity()) {id ->
+            if (id.isNullOrEmpty()) {
+                map.clear()
+                convoyUsers.clear()
             }
+        }
 
         convoyViewModel.getConvoyUsers().observe(requireActivity()) { users ->
             val localUser = Helper.user.get(requireActivity())
             val userSet = mutableSetOf<String>()
             val mapBounds = LatLngBounds.Builder()
+            if (myMarker != null) mapBounds.include(myMarker!!.position)
             for(i in 0 until users.length()) {
                 val user = users.getJSONObject(i)
                 val username = user.getString("username")
@@ -73,7 +82,7 @@ class MapsFragment : Fragment() {
                             .position(latLng)
                             .title(username)
                             .snippet("${user.getString("firstname")} ${user.getString("lastname")}")
-                            .icon(BitmapDescriptorFactory.defaultMarker(i * 18f % 360)) // Different color per convoy user
+                            .icon(BitmapDescriptorFactory.defaultMarker((i+2) * 18f % 360)) // Different color per convoy user
                     )
                 }
             }
@@ -81,7 +90,8 @@ class MapsFragment : Fragment() {
                 convoyUsers[oldUser]?.remove()
                 convoyUsers.remove(oldUser)
             }
-            map.animateCamera(CameraUpdateFactory.newLatLngBounds(mapBounds.build(), 5))
+            if (userSet.size == 0) return@observe
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(mapBounds.build(), 25))
         }
     }
 }
