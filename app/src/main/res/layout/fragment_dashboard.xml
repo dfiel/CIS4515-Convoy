@@ -56,4 +56,32 @@
         app:layout_constraintBottom_toTopOf="@+id/startFAB"
         app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/txtJoin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="Join"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/joinFAB"
+        app:layout_constraintEnd_toStartOf="@+id/joinFAB"
+        app:layout_constraintTop_toTopOf="@+id/joinFAB"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/txtStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="Start"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/startFAB"
+        app:layout_constraintEnd_toStartOf="@+id/startFAB"
+        app:layout_constraintTop_toTopOf="@+id/startFAB"
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,6 +4,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.*
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -14,6 +15,8 @@ class DashboardFragment : Fragment() {
     lateinit var mainFAB: FloatingActionButton
     lateinit var startFAB: FloatingActionButton
     lateinit var joinFAB: FloatingActionButton
+    lateinit var txtStart: TextView
+    lateinit var txtJoin: TextView
     var fabsVisible = false
     var startedConvoy = false
 
@@ -35,6 +38,8 @@ class DashboardFragment : Fragment() {
         mainFAB = layout.findViewById(R.id.mainFAB)
         startFAB = layout.findViewById(R.id.startFAB)
         joinFAB = layout.findViewById(R.id.joinFAB)
+        txtJoin = layout.findViewById(R.id.txtJoin)
+        txtStart = layout.findViewById(R.id.txtStart)
 
         // Query the server for the current Convoy ID (if available)
         // and use it to close the convoy
@@ -117,12 +122,16 @@ class DashboardFragment : Fragment() {
         if (fabsVisible) {
             startFAB.visibility = View.GONE
             joinFAB.visibility = View.GONE
+            txtJoin.visibility = View.GONE
+            txtStart.visibility = View.GONE
             fabsVisible = false
             mainFAB.setImageResource(R.drawable.add_24)
         }
         else {
             startFAB.visibility = View.VISIBLE
             joinFAB.visibility = View.VISIBLE
+            txtJoin.visibility = View.VISIBLE
+            txtStart.visibility = View.VISIBLE
             fabsVisible = true
             mainFAB.setImageResource(R.drawable.close_24)
         }
