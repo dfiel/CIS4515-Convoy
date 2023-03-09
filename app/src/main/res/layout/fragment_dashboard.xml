@@ -88,4 +88,22 @@
         app:layout_constraintEnd_toStartOf="@+id/startFAB"
         app:layout_constraintTop_toTopOf="@+id/startFAB"
         tools:visibility="visible" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/micFAB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:contentDescription="Microphone"
+        android:src="@drawable/broadcast_24"
+        android:visibility="gone"
+        app:backgroundTint="#E85151"
+        app:fabCustomSize="128dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="@+id/fragmentContainerView2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:maxImageSize="100dp"
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

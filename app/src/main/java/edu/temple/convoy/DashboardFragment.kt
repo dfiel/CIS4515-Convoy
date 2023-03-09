@@ -19,6 +19,7 @@ class DashboardFragment : Fragment() {
     lateinit var mainFAB: FloatingActionButton
     lateinit var startFAB: FloatingActionButton
     lateinit var joinFAB: FloatingActionButton
+    lateinit var micFAB: FloatingActionButton
     lateinit var txtStart: TextView
     lateinit var txtJoin: TextView
     var fabsVisible = false
@@ -41,6 +42,7 @@ class DashboardFragment : Fragment() {
         mainFAB = layout.findViewById(R.id.mainFAB)
         startFAB = layout.findViewById(R.id.startFAB)
         joinFAB = layout.findViewById(R.id.joinFAB)
+        micFAB = layout.findViewById(R.id.micFAB)
         txtJoin = layout.findViewById(R.id.txtJoin)
         txtStart = layout.findViewById(R.id.txtStart)
 
@@ -94,6 +96,7 @@ class DashboardFragment : Fragment() {
                 mainFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#03DAC5"))
                 mainFAB.setImageResource(R.drawable.add_24)
                 mainFAB.setOnClickListener { toggleFABs() }
+                micFAB.visibility = View.GONE
             } else {
                 mainFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#e91e63"))
                 mainFAB.setImageResource(R.drawable.close_24)
@@ -101,6 +104,7 @@ class DashboardFragment : Fragment() {
                     if (Helper.user.getStartedConvoy(requireContext())) (activity as DashboardInterface).endConvoy()
                     else (activity as DashboardInterface).leaveConvoy()
                 }
+                micFAB.visibility = View.VISIBLE
             }
 
         }

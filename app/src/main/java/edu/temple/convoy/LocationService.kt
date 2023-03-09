@@ -86,7 +86,6 @@ class LocationService : Service() {
             .build()
     }
 
-    @SuppressLint("MissingPermission")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         // Start requesting location updates when service Started
