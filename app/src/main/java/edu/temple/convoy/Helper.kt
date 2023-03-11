@@ -118,14 +118,40 @@ class Helper {
             makeRequest(context, ENDPOINT_CONVOY, params, response)
         }
 
+        fun messageConvoy(context: Context, user: User, sessionKey: String, convoyId: String, audioFile: ByteArray, response: Response?) {
+            val params = mutableMapOf(
+                Pair("action", "Message"),
+                Pair("username", user.username),
+                Pair("session_key", sessionKey),
+                Pair("convoy_id", convoyId)
+            )
+            val dataPart = mapOf(Pair("message_file", VolleyMultipartRequest.DataPart("message_file", audioFile)))
+            multipartRequest(context, ENDPOINT_CONVOY, params, dataPart, response)
+        }
+
         private fun makeRequest(context: Context, endPoint: String, params: MutableMap<String, String>, responseCallback: Response?) {
             Volley.newRequestQueue(context)
-                .add(object: StringRequest(Request.Method.POST, API_BASE + endPoint, {
+                .add(object: StringRequest(Method.POST, API_BASE + endPoint, {
                     Log.d("Server Response", it)
                     responseCallback?.processResponse(JSONObject(it))
                 }, {}){
                     override fun getParams(): MutableMap<String, String> {
-                            return params;
+                            return params
+                    }
+                })
+        }
+
+        private fun multipartRequest(context: Context, endPoint: String, params: MutableMap<String, String>, byteData: Map<String, VolleyMultipartRequest.DataPart>?, responseCallback: Response?) {
+            Volley.newRequestQueue(context)
+                .add(object: VolleyMultipartRequest(Method.POST, API_BASE+endPoint, {
+                    Log.d("Multipart Server Response", it.toString())
+                    responseCallback?.processResponse(it);
+                }, {}) {
+                    override fun getParams(): MutableMap<String, String> {
+                        return params
+                    }
+                    override fun getByteData(): Map<String, DataPart>? {
+                        return byteData
                     }
                 })
         }
