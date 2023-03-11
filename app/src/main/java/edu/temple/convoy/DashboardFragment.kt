@@ -1,14 +1,23 @@
 package edu.temple.convoy
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.Environment
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.github.piasy.rxandroidaudio.AudioRecorder
+import com.github.piasy.rxandroidaudio.StreamAudioRecorder
+import com.github.piasy.rxandroidaudio.StreamAudioRecorder.AudioDataCallback
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.json.JSONObject
+import java.io.File
 
 class DashboardFragment : Fragment() {
 
@@ -23,6 +32,7 @@ class DashboardFragment : Fragment() {
     lateinit var txtStart: TextView
     lateinit var txtJoin: TextView
     var fabsVisible = false
+    var recordingFile : File? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +89,31 @@ class DashboardFragment : Fragment() {
             toggleFABs()
             (activity as DashboardInterface).joinConvoy()
             Helper.user.saveStartedConvoy(requireContext(), false)
+        }
+        micFAB.setOnClickListener {
+            if (requireContext().checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) { return@setOnClickListener }
+            if (recordingFile == null) {
+                recordingFile = File(
+                    requireContext().filesDir.absolutePath + File.separator +
+                            System.nanoTime() + ".rec.m4a")
+                AudioRecorder.getInstance().apply {
+                    prepareRecord(
+                        MediaRecorder.AudioSource.MIC,
+                        MediaRecorder.OutputFormat.MPEG_4,
+                        MediaRecorder.AudioEncoder.AAC,
+                        recordingFile
+                    )
+                    startRecord()
+                }
+                micFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#e91e63"))
+            }
+            else {
+                AudioRecorder.getInstance().stopRecord()
+                (activity as DashboardInterface).messageConvoy(recordingFile!!)
+                micFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#03DAC5"))
+                recordingFile = null
+            }
         }
 
         return layout
@@ -150,6 +185,7 @@ class DashboardFragment : Fragment() {
         fun endConvoy()
         fun joinConvoy()
         fun leaveConvoy()
+        fun messageConvoy(file: File)
         fun logout()
     }
 
