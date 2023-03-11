@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
         ViewModelProvider(this).get(ConvoyViewModel::class.java)
     }
     val messageQueue by lazy {
-        ConvoyMessageQueue(this)
+        ConvoyMessageQueue(this, lifecycleScope)
     }
 
     // Update ViewModel with location data whenever received from LocationService
@@ -66,10 +66,8 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
         serviceIntent = Intent(this, LocationService::class.java)
 
         convoyViewModel.getConvoyId().observe(this) {
-            if (!it.isNullOrEmpty())
-                supportActionBar?.title = "Convoy - $it"
-            else
-                supportActionBar?.title = "Convoy"
+            if (!it.isNullOrEmpty()) supportActionBar?.title = "Convoy - $it"
+            else supportActionBar?.title = "Convoy"
         }
 
         Helper.user.getConvoyId(this)?.run {
@@ -95,11 +93,10 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
 
         FirebaseMessaging.getInstance().token.addOnSuccessListener {
             Log.d("MainActivity", "FCM Token: $it")
-            if (!Helper.user.getTokenRegistrationStatus(this) &&
-                !Helper.user.getSessionKey(this).isNullOrEmpty()
+            if (!Helper.user.getTokenRegistrationStatus(this) && !Helper.user.getSessionKey(this)
+                    .isNullOrEmpty()
             ) {
-                Helper.api.registerToken(
-                    this,
+                Helper.api.registerToken(this,
                     Helper.user.get(this),
                     Helper.user.getSessionKey(this)!!,
                     it,
@@ -125,8 +122,7 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
 
         convoyViewModel.getLocation().observe(this) {
             if (!convoyViewModel.getConvoyId().value.isNullOrEmpty()) {
-                Helper.api.updateConvoy(
-                    this,
+                Helper.api.updateConvoy(this,
                     Helper.user.get(this),
                     Helper.user.getSessionKey(this)!!,
                     convoyViewModel.getConvoyId().value!!,
@@ -141,8 +137,7 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
                                 ).show()
                             }
                         }
-                    }
-                )
+                    })
             }
         }
 
@@ -169,8 +164,7 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
     }
 
     override fun createConvoy() {
-        Helper.api.createConvoy(
-            this,
+        Helper.api.createConvoy(this,
             Helper.user.get(this),
             Helper.user.getSessionKey(this)!!,
             object : Helper.api.Response {
@@ -178,8 +172,7 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
                     if (Helper.api.isSuccess(response)) {
                         convoyViewModel.setConvoyId(response.getString("convoy_id"))
                         Helper.user.saveConvoyId(
-                            this@MainActivity,
-                            convoyViewModel.getConvoyId().value!!
+                            this@MainActivity, convoyViewModel.getConvoyId().value!!
                         )
                         startLocationService()
                     } else {
@@ -196,12 +189,10 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
 
     override fun endConvoy() {
         AlertDialog.Builder(this).setTitle("Close Convoy")
-            .setMessage("Are you sure you want to close the convoy?")
-            .setPositiveButton(
+            .setMessage("Are you sure you want to close the convoy?").setPositiveButton(
                 "Yes"
             ) { _, _ ->
-                Helper.api.endConvoy(
-                    this,
+                Helper.api.endConvoy(this,
                     Helper.user.get(this),
                     Helper.user.getSessionKey(this)!!,
                     convoyViewModel.getConvoyId().value!!,
@@ -215,20 +206,15 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
                                 ).show()
                             }
                         }
-                    }
-                )
-            }
-            .setNegativeButton("Cancel") { p0, _ -> p0.cancel() }
-            .show()
+                    })
+            }.setNegativeButton("Cancel") { p0, _ -> p0.cancel() }.show()
     }
 
     override fun joinConvoy() {
         val convoyEditText = EditText(this)
-        AlertDialog.Builder(this).setTitle("Join Convoy")
-            .setView(convoyEditText)
+        AlertDialog.Builder(this).setTitle("Join Convoy").setView(convoyEditText)
             .setPositiveButton("Join") { _, _ ->
-                Helper.api.joinConvoy(
-                    this,
+                Helper.api.joinConvoy(this,
                     Helper.user.get(this),
                     Helper.user.getSessionKey(this)!!,
                     convoyEditText.text.toString(),
@@ -237,32 +223,25 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
                             if (Helper.api.isSuccess(response)) {
                                 convoyViewModel.setConvoyId(response.getString("convoy_id"))
                                 Helper.user.saveConvoyId(
-                                    this@MainActivity,
-                                    convoyViewModel.getConvoyId().value!!
+                                    this@MainActivity, convoyViewModel.getConvoyId().value!!
                                 )
                                 startLocationService()
-                            } else
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    Helper.api.getErrorMessage(response),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            } else Toast.makeText(
+                                this@MainActivity,
+                                Helper.api.getErrorMessage(response),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-                    }
-                )
-            }
-            .setNegativeButton("Cancel") { p0, _ -> p0.cancel() }
-            .show()
+                    })
+            }.setNegativeButton("Cancel") { p0, _ -> p0.cancel() }.show()
     }
 
     override fun leaveConvoy() {
         AlertDialog.Builder(this).setTitle("Leave Convoy")
-            .setMessage("Are you sure you want to leave the convoy?")
-            .setPositiveButton(
+            .setMessage("Are you sure you want to leave the convoy?").setPositiveButton(
                 "Yes"
             ) { _, _ ->
-                Helper.api.leaveConvoy(
-                    this,
+                Helper.api.leaveConvoy(this,
                     Helper.user.get(this),
                     Helper.user.getSessionKey(this)!!,
                     convoyViewModel.getConvoyId().value!!,
@@ -272,28 +251,23 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
                                 convoyViewModel.setConvoyId("")
                                 Helper.user.clearConvoyId(this@MainActivity)
                                 stopLocationService()
-                            } else
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    Helper.api.getErrorMessage(response),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            } else Toast.makeText(
+                                this@MainActivity,
+                                Helper.api.getErrorMessage(response),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
 
-                    }
-                )
-            }
-            .setNegativeButton("Cancel") { p0, _ ->
+                    })
+            }.setNegativeButton("Cancel") { p0, _ ->
                 p0.cancel()
 
-            }
-            .show()
+            }.show()
     }
 
     override fun messageConvoy(file: File) {
         lifecycleScope.launch(Dispatchers.IO) {
-            Helper.api.messageConvoy(
-                this@MainActivity,
+            Helper.api.messageConvoy(this@MainActivity,
                 Helper.user.get(this@MainActivity),
                 Helper.user.getSessionKey(this@MainActivity)!!,
                 convoyViewModel.getConvoyId().value!!,
@@ -309,8 +283,7 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
                         }
                         file.delete()
                     }
-                }
-            )
+                })
         }
     }
 
@@ -321,7 +294,7 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
     }
 
     private fun startLocationService() {
-        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
+        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE)
         startService(serviceIntent)
     }
 
@@ -351,10 +324,9 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
                 return
             }
             val fileURL = URL(
-                message.getString("message_file")
-                    .replace("http://", "https://")
+                message.getString("message_file").replace("http://", "https://")
             )
-            messageQueue.downloadMessage(lifecycleScope, filesDir, fileURL, username)
+            messageQueue.downloadMessage(fileURL, username)
         }
     }
 }

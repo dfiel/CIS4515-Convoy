@@ -6,6 +6,7 @@ import org.json.JSONObject
 class ConvoyApplication : Application() {
 
     var messageCallback: FCMCallback? = null
+
     interface FCMCallback {
         fun messageReceive(message: JSONObject)
     }
@@ -14,7 +15,7 @@ class ConvoyApplication : Application() {
         messageCallback = callback
     }
 
-    fun getFCMCallback() : FCMCallback? {
+    fun getFCMCallback(): FCMCallback? {
         return messageCallback
     }
 }

@@ -53,10 +53,14 @@ open class VolleyMultipartRequest(
 
     override fun parseNetworkResponse(response: NetworkResponse): Response<JSONObject> {
         return try {
-            val jsonString = String(response.data,
-                Charset.forName(HttpHeaderParser.parseCharset(response.headers)))
-            Response.success(JSONObject(jsonString),
-                HttpHeaderParser.parseCacheHeaders(response))
+            val jsonString = String(
+                response.data,
+                Charset.forName(HttpHeaderParser.parseCharset(response.headers))
+            )
+            Response.success(
+                JSONObject(jsonString),
+                HttpHeaderParser.parseCacheHeaders(response)
+            )
         } catch (e: UnsupportedEncodingException) {
             Response.error(ParseError(e))
         } catch (je: JSONException) {
@@ -89,7 +93,11 @@ open class VolleyMultipartRequest(
      * @throws IOException
      */
     @Throws(IOException::class)
-    private fun textParse(dataOutputStream: DataOutputStream, params: Map<String, String>, encoding: String) {
+    private fun textParse(
+        dataOutputStream: DataOutputStream,
+        params: Map<String, String>,
+        encoding: String
+    ) {
         try {
             for ((key, value) in params) {
                 buildTextPart(dataOutputStream, key, value)
@@ -123,7 +131,11 @@ open class VolleyMultipartRequest(
      * @throws IOException
      */
     @Throws(IOException::class)
-    private fun buildTextPart(dataOutputStream: DataOutputStream, parameterName: String, parameterValue: String) {
+    private fun buildTextPart(
+        dataOutputStream: DataOutputStream,
+        parameterName: String,
+        parameterValue: String
+    ) {
         dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd)
         dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"$parameterName\"$lineEnd")
         // dataOutputStream.writeBytes("Content-Type: text/plain; charset=UTF-8$lineEnd")
@@ -140,7 +152,11 @@ open class VolleyMultipartRequest(
      * @throws IOException
      */
     @Throws(IOException::class)
-    private fun buildDataPart(dataOutputStream: DataOutputStream, dataFile: DataPart, inputName: String) {
+    private fun buildDataPart(
+        dataOutputStream: DataOutputStream,
+        dataFile: DataPart,
+        inputName: String
+    ) {
         dataOutputStream.writeBytes("$twoHyphens$boundary$lineEnd")
         dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"$inputName\"; filename=\"${dataFile.fileName}\"$lineEnd")
         if (dataFile.type != null && !dataFile.type.isBlank()) {

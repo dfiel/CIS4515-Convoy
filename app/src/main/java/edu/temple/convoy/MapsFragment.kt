@@ -1,7 +1,6 @@
 package edu.temple.convoy
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,11 +10,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 
 
 class MapsFragment : Fragment() {
@@ -28,7 +23,7 @@ class MapsFragment : Fragment() {
         map = googleMap
     }
 
-    val convoyViewModel : ConvoyViewModel by lazy {
+    val convoyViewModel: ConvoyViewModel by lazy {
         ViewModelProvider(requireActivity()).get(ConvoyViewModel::class.java)
     }
 
@@ -53,14 +48,23 @@ class MapsFragment : Fragment() {
                     MarkerOptions().position(it)
                 ) else myMarker?.position = it
             }
-            if (convoyViewModel.getConvoyId().value.isNullOrEmpty()) map.animateCamera(CameraUpdateFactory.newLatLngZoom(it, 17f))
+            if (convoyViewModel.getConvoyId().value.isNullOrEmpty()) map.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(it, 17f)
+            )
         }
 
-        convoyViewModel.getConvoyId().observe(requireActivity()) {id ->
+        convoyViewModel.getConvoyId().observe(requireActivity()) { id ->
             if (id.isNullOrEmpty()) {
                 convoyUsers.values.forEach { it?.remove() }
                 convoyUsers.clear()
-                myMarker?.let { map.animateCamera(CameraUpdateFactory.newLatLngZoom(it.position, 17f)) }
+                myMarker?.let {
+                    map.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            it.position,
+                            17f
+                        )
+                    )
+                }
             }
         }
 
@@ -69,7 +73,7 @@ class MapsFragment : Fragment() {
             val userSet = mutableSetOf<String>()
             val mapBounds = LatLngBounds.Builder()
             if (myMarker != null) mapBounds.include(myMarker!!.position)
-            for(i in 0 until users.length()) {
+            for (i in 0 until users.length()) {
                 val user = users.getJSONObject(i)
                 val username = user.getString("username")
                 val latLng = LatLng(user.getDouble("latitude"), user.getDouble("longitude"))
@@ -77,15 +81,14 @@ class MapsFragment : Fragment() {
                 userSet.add(username)
                 mapBounds.include(latLng)
                 if (convoyUsers.containsKey(username)) {
-                    convoyUsers[username]?.position  = latLng
-                }
-                else {
+                    convoyUsers[username]?.position = latLng
+                } else {
                     convoyUsers[username] = map.addMarker(
                         MarkerOptions()
                             .position(latLng)
                             .title(username)
                             .snippet("${user.getString("firstname")} ${user.getString("lastname")}")
-                            .icon(BitmapDescriptorFactory.defaultMarker((i+2) * 18f % 360)) // Different color per convoy user
+                            .icon(BitmapDescriptorFactory.defaultMarker((i + 2) * 18f % 360)) // Different color per convoy user
                     )
                 }
             }

@@ -1,7 +1,6 @@
 package edu.temple.convoy
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,12 +8,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import org.json.JSONObject
 
 class LoginFragment : Fragment() {
 
-    lateinit var layout : View
+    lateinit var layout: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,31 +27,45 @@ class LoginFragment : Fragment() {
 
         // Navigate to fragment to create account
         layout.findViewById<TextView>(R.id.createAccountTextView)
-            .setOnClickListener{
+            .setOnClickListener {
                 Navigation
                     .findNavController(layout)
-                    .navigate(R.id.action_loginFragment_to_registerFragment)}
+                    .navigate(R.id.action_loginFragment_to_registerFragment)
+            }
 
         // Navigate to Dashboard if login successful
         layout.findViewById<Button>(R.id.loginButton)
-            .setOnClickListener{
-                Helper.api.login(requireContext(), User(usernameEditText.text.toString(), null, null), passwordEditText.text.toString(), object: Helper.api.Response {
-                    override fun processResponse(response: JSONObject) {
-                        if (Helper.api.isSuccess(response)) {
-                            Helper.user.saveSessionData(requireContext(), response.getString("session_key"))
-                            Helper.user.saveUser(requireContext(), User(
-                                usernameEditText.text.toString(),
-                                null,
-                                null
-                            ))
-                            goToDashboard()
-                        } else {
-                            Toast.makeText(requireContext(), Helper.api.getErrorMessage(response), Toast.LENGTH_SHORT).show()
+            .setOnClickListener {
+                Helper.api.login(
+                    requireContext(),
+                    User(usernameEditText.text.toString(), null, null),
+                    passwordEditText.text.toString(),
+                    object : Helper.api.Response {
+                        override fun processResponse(response: JSONObject) {
+                            if (Helper.api.isSuccess(response)) {
+                                Helper.user.saveSessionData(
+                                    requireContext(),
+                                    response.getString("session_key")
+                                )
+                                Helper.user.saveUser(
+                                    requireContext(), User(
+                                        usernameEditText.text.toString(),
+                                        null,
+                                        null
+                                    )
+                                )
+                                goToDashboard()
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    Helper.api.getErrorMessage(response),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
                         }
 
-                    }
-
-                })
+                    })
             }
 
         return layout

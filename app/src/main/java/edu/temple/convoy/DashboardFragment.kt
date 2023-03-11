@@ -6,22 +6,18 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.media.MediaRecorder
 import android.os.Bundle
-import android.os.Environment
 import android.view.*
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.github.piasy.rxandroidaudio.AudioRecorder
-import com.github.piasy.rxandroidaudio.StreamAudioRecorder
-import com.github.piasy.rxandroidaudio.StreamAudioRecorder.AudioDataCallback
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.json.JSONObject
 import java.io.File
 
 class DashboardFragment : Fragment() {
 
-    val convoyViewModel : ConvoyViewModel by lazy {
+    val convoyViewModel: ConvoyViewModel by lazy {
         ViewModelProvider(requireActivity()).get(ConvoyViewModel::class.java)
     }
 
@@ -32,7 +28,7 @@ class DashboardFragment : Fragment() {
     lateinit var txtStart: TextView
     lateinit var txtJoin: TextView
     var fabsVisible = false
-    var recordingFile : File? = null
+    var recordingFile: File? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +43,7 @@ class DashboardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        val layout =  inflater.inflate(R.layout.fragment_dashboard, container, false)
+        val layout = inflater.inflate(R.layout.fragment_dashboard, container, false)
 
         mainFAB = layout.findViewById(R.id.mainFAB)
         startFAB = layout.findViewById(R.id.startFAB)
@@ -61,25 +57,29 @@ class DashboardFragment : Fragment() {
         mainFAB.setOnLongClickListener {
             convoyViewModel.setConvoyId("")
             Helper.user.clearConvoyId(requireContext())
-            if (Helper.user.getSessionKey(requireContext()).isNullOrEmpty()) return@setOnLongClickListener true
+            if (Helper.user.getSessionKey(requireContext())
+                    .isNullOrEmpty()
+            ) return@setOnLongClickListener true
             Helper.api.queryStatus(requireContext(),
-            Helper.user.get(requireContext()),
-            Helper.user.getSessionKey(requireContext())!!,
-            object: Helper.api.Response {
-                override fun processResponse(response: JSONObject) {
-                    if (Helper.api.isSuccess(response)) {
-                        Helper.api.endConvoy(requireContext(),
-                            Helper.user.get(requireContext()),
-                            Helper.user.getSessionKey(requireContext())!!,
-                            response.getString("convoy_id"),
-                            null)
+                Helper.user.get(requireContext()),
+                Helper.user.getSessionKey(requireContext())!!,
+                object : Helper.api.Response {
+                    override fun processResponse(response: JSONObject) {
+                        if (Helper.api.isSuccess(response)) {
+                            Helper.api.endConvoy(
+                                requireContext(),
+                                Helper.user.get(requireContext()),
+                                Helper.user.getSessionKey(requireContext())!!,
+                                response.getString("convoy_id"),
+                                null
+                            )
+                        }
                     }
-                }
-            })
+                })
             true
         }
 
-        mainFAB.setOnClickListener{ toggleFABs() }
+        mainFAB.setOnClickListener { toggleFABs() }
         startFAB.setOnClickListener {
             toggleFABs()
             (activity as DashboardInterface).createConvoy()
@@ -92,11 +92,15 @@ class DashboardFragment : Fragment() {
         }
         micFAB.setOnClickListener {
             if (requireContext().checkSelfPermission(Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) { return@setOnClickListener }
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                return@setOnClickListener
+            }
             if (recordingFile == null) {
                 recordingFile = File(
                     requireContext().filesDir.absolutePath + File.separator +
-                            System.nanoTime() + ".rec.m4a")
+                            System.nanoTime() + ".rec.m4a"
+                )
                 AudioRecorder.getInstance().apply {
                     prepareRecord(
                         MediaRecorder.AudioSource.MIC,
@@ -106,12 +110,11 @@ class DashboardFragment : Fragment() {
                     )
                     startRecord()
                 }
-                micFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#e91e63"))
-            }
-            else {
+                micFAB.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#e91e63"))
+            } else {
                 AudioRecorder.getInstance().stopRecord()
                 (activity as DashboardInterface).messageConvoy(recordingFile!!)
-                micFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#03DAC5"))
+                micFAB.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#03DAC5"))
                 recordingFile = null
             }
         }
@@ -128,12 +131,12 @@ class DashboardFragment : Fragment() {
         // currently in a convoy
         convoyViewModel.getConvoyId().observe(requireActivity()) {
             if (it.isNullOrEmpty()) {
-                mainFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#03DAC5"))
+                mainFAB.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#03DAC5"))
                 mainFAB.setImageResource(R.drawable.add_24)
                 mainFAB.setOnClickListener { toggleFABs() }
                 micFAB.visibility = View.GONE
             } else {
-                mainFAB.backgroundTintList  = ColorStateList.valueOf(Color.parseColor("#e91e63"))
+                mainFAB.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#e91e63"))
                 mainFAB.setImageResource(R.drawable.close_24)
                 mainFAB.setOnClickListener {
                     if (Helper.user.getStartedConvoy(requireContext())) (activity as DashboardInterface).endConvoy()
@@ -169,8 +172,7 @@ class DashboardFragment : Fragment() {
             txtStart.visibility = View.GONE
             fabsVisible = false
             mainFAB.setImageResource(R.drawable.add_24)
-        }
-        else {
+        } else {
             startFAB.visibility = View.VISIBLE
             joinFAB.visibility = View.VISIBLE
             txtJoin.visibility = View.VISIBLE

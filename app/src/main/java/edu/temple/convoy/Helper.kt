@@ -3,7 +3,6 @@ package edu.temple.convoy
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.gms.maps.model.LatLng
@@ -27,7 +26,7 @@ class Helper {
             fun processResponse(response: JSONObject)
         }
 
-        fun createAccount(context: Context, user: User, password: String, response: Response?){
+        fun createAccount(context: Context, user: User, password: String, response: Response?) {
             val params = mutableMapOf(
                 Pair("action", "REGISTER"),
                 Pair("username", user.username),
@@ -47,7 +46,13 @@ class Helper {
             makeRequest(context, ENDPOINT_USER, params, response)
         }
 
-        fun registerToken(context: Context, user: User, sessionKey: String, fcmToken: String, response: Response?) {
+        fun registerToken(
+            context: Context,
+            user: User,
+            sessionKey: String,
+            fcmToken: String,
+            response: Response?
+        ) {
             val params = mutableMapOf(
                 Pair("action", "UPDATE"),
                 Pair("username", user.username),
@@ -67,7 +72,13 @@ class Helper {
             makeRequest(context, ENDPOINT_CONVOY, params, response)
         }
 
-        fun endConvoy(context: Context, user: User, sessionKey: String, convoyId: String, response: Response?) {
+        fun endConvoy(
+            context: Context,
+            user: User,
+            sessionKey: String,
+            convoyId: String,
+            response: Response?
+        ) {
             val params = mutableMapOf(
                 Pair("action", "END"),
                 Pair("username", user.username),
@@ -77,7 +88,13 @@ class Helper {
             makeRequest(context, ENDPOINT_CONVOY, params, response)
         }
 
-        fun joinConvoy(context: Context, user: User, sessionKey: String, convoyId: String, response: Response?) {
+        fun joinConvoy(
+            context: Context,
+            user: User,
+            sessionKey: String,
+            convoyId: String,
+            response: Response?
+        ) {
             val params = mutableMapOf(
                 Pair("action", "JOIN"),
                 Pair("username", user.username),
@@ -87,7 +104,13 @@ class Helper {
             makeRequest(context, ENDPOINT_CONVOY, params, response)
         }
 
-        fun leaveConvoy(context: Context, user: User, sessionKey: String, convoyId: String, response: Response?) {
+        fun leaveConvoy(
+            context: Context,
+            user: User,
+            sessionKey: String,
+            convoyId: String,
+            response: Response?
+        ) {
             val params = mutableMapOf(
                 Pair("action", "LEAVE"),
                 Pair("username", user.username),
@@ -97,7 +120,14 @@ class Helper {
             makeRequest(context, ENDPOINT_CONVOY, params, response)
         }
 
-        fun updateConvoy(context: Context, user: User, sessionKey: String, convoyId: String, location: LatLng, response: Response?) {
+        fun updateConvoy(
+            context: Context,
+            user: User,
+            sessionKey: String,
+            convoyId: String,
+            location: LatLng,
+            response: Response?
+        ) {
             val params = mutableMapOf(
                 Pair("action", "UPDATE"),
                 Pair("username", user.username),
@@ -109,7 +139,7 @@ class Helper {
             makeRequest(context, ENDPOINT_CONVOY, params, response)
         }
 
-        fun queryStatus(context: Context, user:User, sessionKey: String, response: Response?) {
+        fun queryStatus(context: Context, user: User, sessionKey: String, response: Response?) {
             val params = mutableMapOf(
                 Pair("action", "QUERY"),
                 Pair("username", user.username),
@@ -118,38 +148,62 @@ class Helper {
             makeRequest(context, ENDPOINT_CONVOY, params, response)
         }
 
-        fun messageConvoy(context: Context, user: User, sessionKey: String, convoyId: String, audioFile: ByteArray, response: Response?) {
+        fun messageConvoy(
+            context: Context,
+            user: User,
+            sessionKey: String,
+            convoyId: String,
+            audioFile: ByteArray,
+            response: Response?
+        ) {
             val params = mutableMapOf(
                 Pair("action", "Message"),
                 Pair("username", user.username),
                 Pair("session_key", sessionKey),
                 Pair("convoy_id", convoyId)
             )
-            val dataPart = mapOf(Pair("message_file", VolleyMultipartRequest.DataPart("message_file", audioFile)))
+            val dataPart = mapOf(
+                Pair(
+                    "message_file",
+                    VolleyMultipartRequest.DataPart("message_file", audioFile)
+                )
+            )
             multipartRequest(context, ENDPOINT_CONVOY, params, dataPart, response)
         }
 
-        private fun makeRequest(context: Context, endPoint: String, params: MutableMap<String, String>, responseCallback: Response?) {
+        private fun makeRequest(
+            context: Context,
+            endPoint: String,
+            params: MutableMap<String, String>,
+            responseCallback: Response?
+        ) {
             Volley.newRequestQueue(context)
-                .add(object: StringRequest(Method.POST, API_BASE + endPoint, {
+                .add(object : StringRequest(Method.POST, API_BASE + endPoint, {
                     Log.d("Server Response", it)
                     responseCallback?.processResponse(JSONObject(it))
-                }, {}){
-                    override fun getParams(): MutableMap<String, String> {
-                            return params
-                    }
-                })
-        }
-
-        private fun multipartRequest(context: Context, endPoint: String, params: MutableMap<String, String>, byteData: Map<String, VolleyMultipartRequest.DataPart>?, responseCallback: Response?) {
-            Volley.newRequestQueue(context)
-                .add(object: VolleyMultipartRequest(Method.POST, API_BASE+endPoint, {
-                    Log.d("Multipart Server Response", it.toString())
-                    responseCallback?.processResponse(it);
                 }, {}) {
                     override fun getParams(): MutableMap<String, String> {
                         return params
                     }
+                })
+        }
+
+        private fun multipartRequest(
+            context: Context,
+            endPoint: String,
+            params: MutableMap<String, String>,
+            byteData: Map<String, VolleyMultipartRequest.DataPart>?,
+            responseCallback: Response?
+        ) {
+            Volley.newRequestQueue(context)
+                .add(object : VolleyMultipartRequest(Method.POST, API_BASE + endPoint, {
+                    Log.d("Multipart Server Response", it.toString())
+                    responseCallback?.processResponse(it)
+                }, {}) {
+                    override fun getParams(): MutableMap<String, String> {
+                        return params
+                    }
+
                     override fun getByteData(): Map<String, DataPart>? {
                         return byteData
                     }
@@ -236,14 +290,15 @@ class Helper {
                 .apply()
         }
 
-        fun get(context: Context) : User {
-            return User (
-                        getSP(context).getString(KEY_USERNAME, "")!!,
-                        getSP(context).getString(KEY_FIRSTNAME, ""),
-                        getSP(context).getString(KEY_LASTNAME, ""),
-                    )
+        fun get(context: Context): User {
+            return User(
+                getSP(context).getString(KEY_USERNAME, "")!!,
+                getSP(context).getString(KEY_FIRSTNAME, ""),
+                getSP(context).getString(KEY_LASTNAME, ""),
+            )
         }
-        private fun getSP (context: Context) : SharedPreferences {
+
+        private fun getSP(context: Context): SharedPreferences {
             return context.getSharedPreferences(SHARED_PREFERENCES_FILE, Context.MODE_PRIVATE)
         }
     }

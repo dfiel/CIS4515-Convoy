@@ -1,13 +1,13 @@
 package edu.temple.convoy
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import org.json.JSONObject
 
@@ -28,7 +28,7 @@ class RegisterFragment : Fragment() {
         val lastnameEditText = layout.findViewById<EditText>(R.id.lastnameEditText)
 
         layout.findViewById<Button>(R.id.createAccountButton)
-            .setOnClickListener{
+            .setOnClickListener {
 
                 val username = usernameEditText.text.toString()
                 val password = passwordEditText.text.toString()
@@ -73,7 +73,11 @@ class RegisterFragment : Fragment() {
                         }
                     )
                 } else {
-                    Toast.makeText(requireContext(), "Please ensure your passwords match", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Please ensure your passwords match",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         return layout
