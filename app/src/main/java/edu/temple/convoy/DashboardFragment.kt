@@ -17,7 +17,7 @@ import java.io.File
 
 class DashboardFragment : Fragment() {
 
-    val convoyViewModel: ConvoyViewModel by lazy {
+    private val convoyViewModel: ConvoyViewModel by lazy {
         ViewModelProvider(requireActivity()).get(ConvoyViewModel::class.java)
     }
 
@@ -27,7 +27,8 @@ class DashboardFragment : Fragment() {
     lateinit var micFAB: FloatingActionButton
     lateinit var txtStart: TextView
     lateinit var txtJoin: TextView
-    var fabsVisible = false
+    lateinit var txtMessage: TextView
+    private var fabsVisible = false
     var recordingFile: File? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +52,7 @@ class DashboardFragment : Fragment() {
         micFAB = layout.findViewById(R.id.micFAB)
         txtJoin = layout.findViewById(R.id.txtJoin)
         txtStart = layout.findViewById(R.id.txtStart)
+        txtMessage = layout.findViewById(R.id.txtMessage)
 
         // Query the server for the current Convoy ID (if available)
         // and use it to close the convoy
@@ -145,6 +147,16 @@ class DashboardFragment : Fragment() {
                 micFAB.visibility = View.VISIBLE
             }
 
+        }
+
+        convoyViewModel.getConvoyMessage().observe(requireActivity()) {
+            if (it == null) {
+                txtMessage.visibility = View.GONE
+            }
+            else {
+                txtMessage.text = getString(R.string.broadcast_message, it.username)
+                txtMessage.visibility = View.VISIBLE
+            }
         }
     }
 

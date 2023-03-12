@@ -21,6 +21,10 @@ class ConvoyViewModel : ViewModel() {
         MutableLiveData<JSONArray>()
     }
 
+    private val convoyMessage by lazy {
+        MutableLiveData<ConvoyMessageQueue.ConvoyMessage>()
+    }
+
     fun setConvoyId(id: String) {
         convoyId.value = id
     }
@@ -37,6 +41,10 @@ class ConvoyViewModel : ViewModel() {
         convoyUsers.postValue(users)
     }
 
+    fun postConvoyMessage(message: ConvoyMessageQueue.ConvoyMessage?) {
+        convoyMessage.postValue(message)
+    }
+
     fun getLocation(): LiveData<LatLng> {
         return location
     }
@@ -49,4 +57,7 @@ class ConvoyViewModel : ViewModel() {
         return convoyUsers
     }
 
+    fun getConvoyMessage(): LiveData<ConvoyMessageQueue.ConvoyMessage> {
+        return convoyMessage
+    }
 }

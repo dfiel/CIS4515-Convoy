@@ -106,4 +106,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:maxImageSize="100dp"
         tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/txtMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/rounded_corner"
+        android:padding="16dp"
+        android:text="@string/broadcast_message"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

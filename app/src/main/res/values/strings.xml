@@ -2,4 +2,5 @@
     <string name="app_name">Convoy</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="broadcast_message">Broadcasting Message From: %1$s</string>
 </resources>

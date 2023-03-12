@@ -11,7 +11,8 @@ import java.io.File
 import java.net.URL
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class ConvoyMessageQueue(private val context: Context, private val scope: CoroutineScope) {
+class ConvoyMessageQueue(private val context: Context, private val scope: CoroutineScope,
+                         private val viewModel: ConvoyViewModel) {
     data class ConvoyMessage(val username: String, val file: File)
 
     private var mediaPlayer = MediaPlayer().apply {
@@ -22,7 +23,7 @@ class ConvoyMessageQueue(private val context: Context, private val scope: Corout
                 .build()
         )
         setOnCompletionListener { cleanupMessage(); queueMessage() }
-        setOnPreparedListener { start() }
+        setOnPreparedListener { startMessage() }
     }
     private var queue = ConcurrentLinkedQueue<ConvoyMessage>()
 
@@ -46,6 +47,9 @@ class ConvoyMessageQueue(private val context: Context, private val scope: Corout
 
     private fun cleanupMessage() {
         val message = queue.poll()
+        if (queue.size == 0) {
+            viewModel.postConvoyMessage(null)
+        }
         scope.launch(Dispatchers.IO) {
             message!!.file.delete()
         }
@@ -61,5 +65,10 @@ class ConvoyMessageQueue(private val context: Context, private val scope: Corout
             setDataSource(context, Uri.fromFile(message!!.file))
             prepareAsync()
         }
+    }
+
+    private fun startMessage() {
+        mediaPlayer.start()
+        viewModel.postConvoyMessage(queue.peek()!!)
     }
 }

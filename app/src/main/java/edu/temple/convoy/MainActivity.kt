@@ -33,12 +33,12 @@ import java.util.*
 class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
     ConvoyApplication.FCMCallback {
 
-    var serviceIntent: Intent? = null
+    private var serviceIntent: Intent? = null
     val convoyViewModel: ConvoyViewModel by lazy {
-        ViewModelProvider(this).get(ConvoyViewModel::class.java)
+        ViewModelProvider(this)[ConvoyViewModel::class.java]
     }
-    val messageQueue by lazy {
-        ConvoyMessageQueue(this, lifecycleScope)
+    private val messageQueue by lazy {
+        ConvoyMessageQueue(this, lifecycleScope, convoyViewModel)
     }
 
     // Update ViewModel with location data whenever received from LocationService
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(), DashboardFragment.DashboardInterface,
         }
     }
 
-    var serviceConnection: ServiceConnection = object : ServiceConnection {
+    private var serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
 
             // Provide service with handler
